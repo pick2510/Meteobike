@@ -117,13 +117,12 @@ def start_counting(label):
         computer_time = strftime("%Y-%m-%d %H:%M:%S")
         try:
           dht22_humidity, dht22_temperature = dht22_sensor.temperature, dht22_sensor.humidity
+          print(dht22_humidity, dht22_temperature)
         except:
           continue
         dht22_temperature_raw = round(dht22_temperature, 5)
-        print(dht22_temperature_raw)
         dht22_temperature_calib = round(
             dht22_temperature * temperature_cal_a1 + temperature_cal_a0, 3)
-        print(dht22_humidity_raw)
         dht22_temperature = dht22_temperature_calib
         saturation_vappress_ucalib = 0.6113 * \
             numpy.exp((2501000.0/461.5)*((1.0/273.15) -
