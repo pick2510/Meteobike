@@ -118,15 +118,11 @@ def start_counting(label):
         except:
             continue
 
-
 def measure_loop(label,counter):
     counter += 1
     computer_time = strftime("%Y-%m-%d %H:%M:%S")
-    try:
-        dht22_humidity, dht22_temperature = dht22_sensor.temperature, dht22_sensor.humidity
-        print(dht22_humidity, dht22_temperature)
-    except:
-        continue
+    dht22_humidity, dht22_temperature = dht22_sensor.temperature, dht22_sensor.humidity
+    print(dht22_humidity, dht22_temperature)
     dht22_temperature_raw = round(dht22_temperature, 5)
     dht22_temperature_calib = round(
         dht22_temperature * temperature_cal_a1 + temperature_cal_a0, 3)
