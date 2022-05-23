@@ -7,8 +7,8 @@ on a bike.
 University of Freiburg
 Environmental Meteology
 Version 1.2
-Written by Heinz Christen Mar 2018 
-Modified by Andreas Christen Apr 2018 
+Written by Heinz Christen Mar 2018
+Modified by Andreas Christen Apr 2018
 Using the class GpsPoller
 written by Dan Mandle http://dan.mandle.me September 2012 License: GPL 2.0
 Buttons:
@@ -113,75 +113,79 @@ def stop_data():
 def start_counting(label):
     counter = 0
     while True:
-        counter += 1
-        computer_time = strftime("%Y-%m-%d %H:%M:%S")
-        try:
-          dht22_humidity, dht22_temperature = dht22_sensor.temperature, dht22_sensor.humidity
-          print(dht22_humidity, dht22_temperature)
-        except:
-          continue
-        dht22_temperature_raw = round(dht22_temperature, 5)
-        dht22_temperature_calib = round(
-            dht22_temperature * temperature_cal_a1 + temperature_cal_a0, 3)
-        dht22_temperature = dht22_temperature_calib
-        saturation_vappress_ucalib = 0.6113 * \
-            numpy.exp((2501000.0/461.5)*((1.0/273.15) -
-                      (1.0/(dht22_temperature_raw+273.15))))
-        saturation_vappress_calib = 0.6113 * \
-            numpy.exp((2501000.0/461.5)*((1.0/273.15) -
-                      (1.0/(dht22_temperature_calib+273.15))))
-        dht22_vappress = (dht22_humidity/100.0)*saturation_vappress_ucalib
-        dht22_vappress_raw = round(dht22_vappress, 3)
-        dht22_vappress_calib = round(
-            dht22_vappress * vappress_cal_a1 + vappress_cal_a0, 3)
-        dht22_vappress = dht22_vappress_calib
-        dht22_humidity_raw = round(dht22_humidity, 5)
-        dht22_humidity = round(
-            100 * (dht22_vappress_calib / saturation_vappress_calib), 5)
-        if dht22_humidity > 100:
-            dht22_humidity = 100
-        gps_time = gpsd.utc
-        gps_altitude = gpsd.fix.altitude
-        gps_latitude = gpsd.fix.latitude
-        gps_longitude = gpsd.fix.longitude
-        f_mode = int(gpsd.fix.mode)  # store number of sats
-        has_fix = False  # assume no fix
-        if f_mode == 2:
-            value_counter.config(bg="orange")
-        elif f_mode > 2:
-            has_fix = True
-            value_counter.config(bg="#20ff20")  # light green
+        measure_loop(label, counter)
+
+
+def measure_loop(label,counter):
+    counter += 1
+    computer_time = strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        dht22_humidity, dht22_temperature = dht22_sensor.temperature, dht22_sensor.humidity
+        print(dht22_humidity, dht22_temperature)
+    except:
+        continue
+    dht22_temperature_raw = round(dht22_temperature, 5)
+    dht22_temperature_calib = round(
+        dht22_temperature * temperature_cal_a1 + temperature_cal_a0, 3)
+    dht22_temperature = dht22_temperature_calib
+    saturation_vappress_ucalib = 0.6113 * \
+        numpy.exp((2501000.0/461.5)*((1.0/273.15) -
+                    (1.0/(dht22_temperature_raw+273.15))))
+    saturation_vappress_calib = 0.6113 * \
+        numpy.exp((2501000.0/461.5)*((1.0/273.15) -
+                    (1.0/(dht22_temperature_calib+273.15))))
+    dht22_vappress = (dht22_humidity/100.0)*saturation_vappress_ucalib
+    dht22_vappress_raw = round(dht22_vappress, 3)
+    dht22_vappress_calib = round(
+        dht22_vappress * vappress_cal_a1 + vappress_cal_a0, 3)
+    dht22_vappress = dht22_vappress_calib
+    dht22_humidity_raw = round(dht22_humidity, 5)
+    dht22_humidity = round(
+        100 * (dht22_vappress_calib / saturation_vappress_calib), 5)
+    if dht22_humidity > 100:
+        dht22_humidity = 100
+    gps_time = gpsd.utc
+    gps_altitude = gpsd.fix.altitude
+    gps_latitude = gpsd.fix.latitude
+    gps_longitude = gpsd.fix.longitude
+    f_mode = int(gpsd.fix.mode)  # store number of sats
+    has_fix = False  # assume no fix
+    if f_mode == 2:
+        value_counter.config(bg="orange")
+    elif f_mode > 2:
+        has_fix = True
+        value_counter.config(bg="#20ff20")  # light green
+    else:
+        value_counter.config(bg="red")
+    value_ctime.config(text=computer_time)
+    value_altitude.config(text="{0:.3f} m".format(gps_altitude))
+    value_latitude.config(text="{0:.6f} N".format(gps_latitude))
+    value_longitude.config(text="{0:.6f} E".format(gps_longitude))
+    value_time.config(text=gps_time)  # cut last 5 letters
+    value_temperature.config(text="{0:.1f}ºC".format(dht22_temperature))
+    value_humidity.config(text="{0:.1f} %".format(dht22_humidity))
+    value_vappress.config(text="{0:.3f} kPa".format(dht22_vappress))
+    label.config(text=str(counter))
+    label.after(1000*sampling_rate, measure_loop)
+    if recording and has_fix:
+        f0 = open(logfile, "a")
+        f0.write(raspberryid+",")
+        f0.write(str(counter)+",")
+        f0.write(computer_time+",")
+        if has_fix:
+            f0.write(gps_time+",")
         else:
-            value_counter.config(bg="red")
-        value_ctime.config(text=computer_time)
-        value_altitude.config(text="{0:.3f} m".format(gps_altitude))
-        value_latitude.config(text="{0:.6f} N".format(gps_latitude))
-        value_longitude.config(text="{0:.6f} E".format(gps_longitude))
-        value_time.config(text=gps_time)  # cut last 5 letters
-        value_temperature.config(text="{0:.1f}ºC".format(dht22_temperature))
-        value_humidity.config(text="{0:.1f} %".format(dht22_humidity))
-        value_vappress.config(text="{0:.3f} kPa".format(dht22_vappress))
-        label.config(text=str(counter))
-        label.after(1000*sampling_rate)
-        if recording and has_fix:
-            f0 = open(logfile, "a")
-            f0.write(raspberryid+",")
-            f0.write(str(counter)+",")
-            f0.write(computer_time+",")
-            if has_fix:
-                f0.write(gps_time+",")
-            else:
-                f0.write("nan,")
-            f0.write("{0:.3f}".format(gps_altitude)+",")
-            f0.write("{0:.6f}".format(gps_latitude)+",")
-            f0.write("{0:.6f}".format(gps_longitude)+",")
-            f0.write(str(dht22_temperature)+",")
-            f0.write(str(dht22_temperature_raw)+",")
-            f0.write(str(dht22_humidity)+",")
-            f0.write(str(dht22_humidity_raw)+",")
-            f0.write(str(dht22_vappress)+",")
-            f0.write(str(dht22_vappress_raw)+"\n")
-            f0.close()
+            f0.write("nan,")
+        f0.write("{0:.3f}".format(gps_altitude)+",")
+        f0.write("{0:.6f}".format(gps_latitude)+",")
+        f0.write("{0:.6f}".format(gps_longitude)+",")
+        f0.write(str(dht22_temperature)+",")
+        f0.write(str(dht22_temperature_raw)+",")
+        f0.write(str(dht22_humidity)+",")
+        f0.write(str(dht22_humidity_raw)+",")
+        f0.write(str(dht22_vappress)+",")
+        f0.write(str(dht22_vappress_raw)+"\n")
+        f0.close()
 
 
 # define widgets
