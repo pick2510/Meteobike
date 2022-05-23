@@ -113,7 +113,10 @@ def stop_data():
 def start_counting(label):
     counter = 0
     while True:
-        measure_loop(label, counter)
+        try:
+            measure_loop(label, counter)
+        except:
+            continue
 
 
 def measure_loop(label,counter):
