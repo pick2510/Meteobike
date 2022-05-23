@@ -162,7 +162,7 @@ def start_counting(label):
         value_humidity.config(text="{0:.1f} %".format(dht22_humidity))
         value_vappress.config(text="{0:.3f} kPa".format(dht22_vappress))
         label.config(text=str(counter))
-        label.after(1000*sampling_rate, count)
+        label.after(1000*sampling_rate)
         if recording and has_fix:
             f0 = open(logfile, "a")
             f0.write(raspberryid+",")
