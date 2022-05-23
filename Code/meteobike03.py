@@ -18,9 +18,10 @@ Exit:	exit program
 """
 import os,sys
 from gps import *
-import Adafruit_DHT
+import adafruit_dht
 import threading
-from Tkinter import *
+import board
+from tkinter import *
 from time import gmtime, strftime
 import numpy
 import socket
@@ -62,13 +63,13 @@ class GpsPoller(threading.Thread):
   def run(self):
     global gpsd
     while gpsp.running:
-      gpsd.next() # this will continue to loop and grab EACH set of gpsd info to clear the buffer
+      next(gpsd) # this will continue to loop and grab EACH set of gpsd info to clear the buffer
 # main program
 counter = 0
 gpsp = GpsPoller() # create the thread
 gpsp.start() # start it up
 dht22_pin = 4 # pin for DHT22 Data
-dht22_sensor = Adafruit_DHT.DHT22
+dht22_sensor = adafruit_dht.DHT22(board.D4)
 #callback functions
 def exit_program():
 	master.destroy()
@@ -94,7 +95,7 @@ def start_counting(label):
     global counter
     counter += 1
     computer_time = strftime("%Y-%m-%d %H:%M:%S")
-    dht22_humidity, dht22_temperature = Adafruit_DHT.read_retry(dht22_sensor, dht22_pin)
+    dht22_humidity, dht22_temperature = dht22_sensor.temperature, dht22_sensor.humidity  
     dht22_temperature_raw=round(dht22_temperature,5)
     dht22_temperature_calib=round(dht22_temperature * temperature_cal_a1 + temperature_cal_a0,3)
     dht22_temperature = dht22_temperature_calib
@@ -149,7 +150,7 @@ def start_counting(label):
 #define widgets 
 master = Tk()
 master.title(window_title)
-master.attributes('-fullscreen', True)
+#master.attributes('-fullscreen', True)
 name1=Label(master, text = " Name", fg="blue", font=('Helvetica', font_size)).grid(row=0,column=0,sticky=W)
 name2=Label(master, text = studentname+"'s Meteobike", fg="blue", font=('Helvetica', font_size)).grid(row=0,column=1,sticky=W,columnspan=2)
 ip1=Label(master, text = " IP", fg="blue", font=('Helvetica', font_size)).grid(row=1,column=0,sticky=W)
