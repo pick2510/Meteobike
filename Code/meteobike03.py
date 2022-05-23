@@ -77,7 +77,7 @@ class GpsPoller(threading.Thread):
 
 
 # main program
-counter = 0
+#counter = 0
 gpsp = GpsPoller()  # create the thread
 gpsp.start()  # start it up
 dht22_pin = 4  # pin for DHT22 Data
@@ -86,8 +86,8 @@ dht22_sensor = adafruit_dht.DHT22(board.D4)
 
 
 def exit_program():
+    e.set()
     master.destroy()
-    sys.exit()
 
 
 def record_data():
@@ -110,19 +110,21 @@ def stop_data():
     b2.config(state=DISABLED)
 
 
-def start_counting(label):
+def start_counting(e,label):
     counter = 0
     while True:
-        try:
-            measure_loop(label, counter)
-        except:
-            continue
+       if e.is_set():
+           break
+       try:
+           counter = measure_loop(counter,label)
+       except:
+           continue
+       time.sleep(5)
 
-def measure_loop(label,counter):
+def measure_loop(counter,label):
     counter += 1
     computer_time = strftime("%Y-%m-%d %H:%M:%S")
     dht22_humidity, dht22_temperature = dht22_sensor.temperature, dht22_sensor.humidity
-    print(dht22_humidity, dht22_temperature)
     dht22_temperature_raw = round(dht22_temperature, 5)
     dht22_temperature_calib = round(
         dht22_temperature * temperature_cal_a1 + temperature_cal_a0, 3)
@@ -165,7 +167,6 @@ def measure_loop(label,counter):
     value_humidity.config(text="{0:.1f} %".format(dht22_humidity))
     value_vappress.config(text="{0:.3f} kPa".format(dht22_vappress))
     label.config(text=str(counter))
-    label.after(1000*sampling_rate, measure_loop)
     if recording and has_fix:
         f0 = open(logfile, "a")
         f0.write(raspberryid+",")
@@ -185,6 +186,7 @@ def measure_loop(label,counter):
         f0.write(str(dht22_vappress)+",")
         f0.write(str(dht22_vappress_raw)+"\n")
         f0.close()
+    return counter
 
 
 # define widgets
@@ -248,8 +250,9 @@ value_vappress = Label(master, text=" Vap. Pressure ",
                        font=('Helvetica', font_size))
 value_vappress.grid(row=10, column=1, sticky=W, columnspan=2)
 # initialize value_counter
-th = threading.Thread(target=start_counting, args=[value_counter])
-th.start()
+e = threading.Event()
+th = threading.Thread(target=start_counting, args=(e,value_counter))
+th.daemon=True
 #start_counting(value_counter)
 # define buttons
 b1 = Button(master, text='Record', width=7,
@@ -262,4 +265,5 @@ b4.grid(row=12, column=2, sticky=E)
 recording = True
 record_data()
 #wait in mainloop
+th.start()
 mainloop()
