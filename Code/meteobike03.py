@@ -249,6 +249,7 @@ value_vappress = Label(master, text=" Vap. Pressure ",
 value_vappress.grid(row=10, column=1, sticky=W, columnspan=2)
 # initialize value_counter
 th = threading.Thread(target=start_counting, args=[value_counter])
+th.start()
 #start_counting(value_counter)
 # define buttons
 b1 = Button(master, text='Record', width=7,
