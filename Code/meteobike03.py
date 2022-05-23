@@ -112,9 +112,7 @@ def stop_data():
 
 def start_counting(label):
     counter = 0
-
     while True:
-        global counter
         counter += 1
         computer_time = strftime("%Y-%m-%d %H:%M:%S")
         try:
