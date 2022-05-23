@@ -151,22 +151,39 @@ def measure_loop(counter,label):
     gps_longitude = gpsd.fix.longitude
     f_mode = int(gpsd.fix.mode)  # store number of sats
     has_fix = False  # assume no fix
+    # if f_mode == 2:
+    #     value_counter.config(bg="orange")
+    # elif f_mode > 2:
+    #     has_fix = True
+    #     value_counter.config(bg="#20ff20")  # light green
+    # else:
+    #     value_counter.config(bg="red")
+    # value_ctime.config(text=computer_time)
+    # value_altitude.config(text="{0:.3f} m".format(gps_altitude))
+    # value_latitude.config(text="{0:.6f} N".format(gps_latitude))
+    # value_longitude.config(text="{0:.6f} E".format(gps_longitude))
+    # value_time.config(text=gps_time)  # cut last 5 letters
+    # value_temperature.config(text="{0:.1f}ºC".format(dht22_temperature))
+    # value_humidity.config(text="{0:.1f} %".format(dht22_humidity))
+    # value_vappress.config(text="{0:.3f} kPa".format(dht22_vappress))
+    # label.config(text=str(counter))
+    res_dic = {}
     if f_mode == 2:
-        value_counter.config(bg="orange")
+        res_dic["bg"] = "orange"
     elif f_mode > 2:
         has_fix = True
-        value_counter.config(bg="#20ff20")  # light green
+        res_dic["bg"] = "#20ff20"
     else:
-        value_counter.config(bg="red")
-    value_ctime.config(text=computer_time)
-    value_altitude.config(text="{0:.3f} m".format(gps_altitude))
-    value_latitude.config(text="{0:.6f} N".format(gps_latitude))
-    value_longitude.config(text="{0:.6f} E".format(gps_longitude))
-    value_time.config(text=gps_time)  # cut last 5 letters
-    value_temperature.config(text="{0:.1f}ºC".format(dht22_temperature))
-    value_humidity.config(text="{0:.1f} %".format(dht22_humidity))
-    value_vappress.config(text="{0:.3f} kPa".format(dht22_vappress))
-    label.config(text=str(counter))
+        res_dic["bg"] = "red"
+    res_dic["value_ctime_config"] = computer_time
+    res_dic["value_altitude_config"] = "{0:.3f} m".format(gps_altitude)
+    res_dic["value_latitude_config"] = "{0:.6f} N".format(gps_latitude)
+    res_dic["value_longitude_config"] = "{0:.6f} E".format(gps_longitude)
+    res_dic["value_time_config"] = gps_time
+    res_dic["value_temperature_config"] = "{0:.1f}ºC".format(dht22_temperature)
+    res_dic["value_humidity_config"] = "{0:.1f} %".format(dht22_humidity)
+    res_dic["value_vappress_config"] = "{0:.3f} kPa".format(dht22_vappress)
+    res_dic["counter"] = counter
     if recording and has_fix:
         f0 = open(logfile, "a")
         f0.write(raspberryid+",")
@@ -186,12 +203,29 @@ def measure_loop(counter,label):
         f0.write(str(dht22_vappress)+",")
         f0.write(str(dht22_vappress_raw)+"\n")
         f0.close()
+    master.event_generate("<<event1>>", when="tail", state=res_dic)
     return counter
 
+
+def eventhandler(evt):
+    print("Event happened!")
+    res_dic = evt.state
+    value_ctime.config(text=res_dic["value_ctime_config"])
+    value_altitude.config(text=res_dic["value_altitude_config"])
+    value_latitude.config(text=res_dic["value_latitude_config"])
+    value_longitude.config(text=res_dic["value_longitude_config"])
+    value_time.config(text=res_dic["value_time_config"])  # cut last 5 letters
+    value_temperature.config(text=res_dic["value_temperature_config"])
+    value_humidity.config(text=res_dic["value_humidity_config"])
+    value_vappress.config(text=res_dic["value_vappress_config"])
+    value_counter.config(text=str(res_dic["counter"]), bg=res_dic["bg"])
+    
+   
 
 # define widgets
 master = Tk()
 master.title(window_title)
+master.bind("<<event1>>", eventhandler)
 #master.attributes('-fullscreen', True)
 name1 = Label(master, text=" Name", fg="blue", font=(
     'Helvetica', font_size)).grid(row=0, column=0, sticky=W)
