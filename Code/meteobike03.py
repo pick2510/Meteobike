@@ -26,7 +26,9 @@ from tkinter import *
 from time import gmtime, strftime
 import numpy
 import socket
+import queue
 
+q = queue.Queue()
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -44,7 +46,7 @@ def get_ip():
 raspberryid = "00"  # enter your raspberry's number
 studentname = "Unclaimed"  # enter your first name - no spaces and no special characters
 # enter the calibration coefficient slope for temperature
-temperature_cal_a1 = 1.00100
+temperature_cal_a1 = 1.0000
 # enter the calibration coefficient offset for temperature
 temperature_cal_a0 = 0.00000
 vappress_cal_a1 = 1.00000  # enter the calibration coefficient slope for vapour pressure
@@ -60,6 +62,7 @@ gpsd = None  # setting global variables
 recording = False
 sampling_rate = 5  # sampling rate - minimum number of seconds between samplings
 
+e = threading.Event()
 
 class GpsPoller(threading.Thread):
     def __init__(self):
@@ -72,6 +75,8 @@ class GpsPoller(threading.Thread):
     def run(self):
         global gpsd
         while gpsp.running:
+            if e.is_set():
+                break
             # this will continue to loop and grab EACH set of gpsd info to clear the buffer
             next(gpsd)
 
@@ -87,6 +92,7 @@ dht22_sensor = adafruit_dht.DHT22(board.D4)
 
 def exit_program():
     e.set()
+    th.join()
     master.destroy()
 
 
@@ -110,21 +116,24 @@ def stop_data():
     b2.config(state=DISABLED)
 
 
-def start_counting(e,label):
-    counter = 0
-    while True:
-       if e.is_set():
-           break
-       try:
-           counter = measure_loop(counter,label)
-       except:
+def start_counting(e):
+    counter= 1
+    while 1:
+        if e.is_set():
+            sys.exit()
+        try:
+           res_dic=measure_loop(counter)
+           counter+=1
+           q.put(res_dic)
+           master.event_generate("<<event1>>", when="tail")
+        except:
            continue
-       time.sleep(5)
+        time.sleep(5)
+        print(counter)
 
-def measure_loop(counter,label):
-    counter += 1
+def measure_loop(counter):
     computer_time = strftime("%Y-%m-%d %H:%M:%S")
-    dht22_humidity, dht22_temperature = dht22_sensor.temperature, dht22_sensor.humidity
+    dht22_humidity, dht22_temperature = dht22_sensor.humidity, dht22_sensor.temperature
     dht22_temperature_raw = round(dht22_temperature, 5)
     dht22_temperature_calib = round(
         dht22_temperature * temperature_cal_a1 + temperature_cal_a0, 3)
@@ -203,13 +212,11 @@ def measure_loop(counter,label):
         f0.write(str(dht22_vappress)+",")
         f0.write(str(dht22_vappress_raw)+"\n")
         f0.close()
-    master.event_generate("<<event1>>", when="tail", state=res_dic)
-    return counter
+    return res_dic
 
 
 def eventhandler(evt):
-    print("Event happened!")
-    res_dic = evt.state
+    res_dic = q.get()
     value_ctime.config(text=res_dic["value_ctime_config"])
     value_altitude.config(text=res_dic["value_altitude_config"])
     value_latitude.config(text=res_dic["value_latitude_config"])
@@ -225,7 +232,6 @@ def eventhandler(evt):
 # define widgets
 master = Tk()
 master.title(window_title)
-master.bind("<<event1>>", eventhandler)
 #master.attributes('-fullscreen', True)
 name1 = Label(master, text=" Name", fg="blue", font=(
     'Helvetica', font_size)).grid(row=0, column=0, sticky=W)
@@ -284,8 +290,7 @@ value_vappress = Label(master, text=" Vap. Pressure ",
                        font=('Helvetica', font_size))
 value_vappress.grid(row=10, column=1, sticky=W, columnspan=2)
 # initialize value_counter
-e = threading.Event()
-th = threading.Thread(target=start_counting, args=(e,value_counter))
+th = threading.Thread(target=start_counting, args=(e,))
 th.daemon=True
 #start_counting(value_counter)
 # define buttons
@@ -300,4 +305,5 @@ recording = True
 record_data()
 #wait in mainloop
 th.start()
+master.bind("<<event1>>", eventhandler)
 mainloop()
