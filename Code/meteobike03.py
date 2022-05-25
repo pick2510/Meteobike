@@ -78,7 +78,7 @@ class GpsPoller(threading.Thread):
             if e.is_set():
                 break
             # this will continue to loop and grab EACH set of gpsd info to clear the buffer
-            next(gpsd)
+            gpsd.next()
 
 
 # main program
