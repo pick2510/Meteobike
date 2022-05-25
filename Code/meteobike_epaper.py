@@ -51,7 +51,7 @@ vappress_cal_a0 = 0.00000 # enter the calibration coefficient offset for vapour 
 
 #Creating Data File
 display_interval = 5 # display epaper every X records
-logfile_path = "/home/pi/Desktop/"
+logfile_path = "/home/strebdom/Desktop/"
 logfile = logfile_path+raspberryid+"-"+studentname+"-"+strftime("%Y-%m-%d.csv") # construct file name
 
 e = threading.Event()
@@ -204,7 +204,7 @@ while True:
             gps()
 
         #Calculating Variables
-        dht22_humidity, dht22_temperature = Adafruit_DHT.read_retry(dht22_sensor, dht22_pin)
+        dht22_humidity, dht22_temperature = dht22_sensor.humidity, dht22_sensor.temperature
         dht22_temperature_raw=round(dht22_temperature,5)
         dht22_temperature_calib=round(dht22_temperature * temperature_cal_a1 + temperature_cal_a0,3)
         dht22_temperature = dht22_temperature_calib
@@ -238,7 +238,7 @@ while True:
         epd.init()
 
         #Font Description
-        font_dir='/home/pi/e-Paper/RaspberryPi&JetsonNano/python/pic'
+        font_dir='/home/strebdom/git/e-Paper/RaspberryPi_JetsonNano/python/pic'
         font18 = ImageFont.truetype(os.path.join(font_dir, 'Font.ttc'), 18)
         font14 = ImageFont.truetype(os.path.join(font_dir, 'Font.ttc'), 14)
 
