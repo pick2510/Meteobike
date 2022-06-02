@@ -43,11 +43,13 @@ import traceback
 
 #User ID & Constants
 raspberryid = "52" # enter your raspberry's number
-studentname = "Andreas" # enter your first name - no spaces and no special characters
+studentname = "strebdom" # enter your first name - no spaces and no special characters
 temperature_cal_a1 = 1.00000 # enter the calibration coefficient slope for temperature
 temperature_cal_a0 = 0.00000 # enter the calibration coefficient offset for temperature
 vappress_cal_a1 = 1.00000 # enter the calibration coefficient slope for vapour pressure
 vappress_cal_a0 = 0.00000 # enter the calibration coefficient offset for vapour pressure
+rad_Earth=6378100.0
+
 
 #Creating Data File
 display_interval = 5 # display epaper every X records
@@ -120,13 +122,11 @@ recording = True
 
 sampling_rate = 5 # sampling rate - minimum number of seconds between samplings
 
-dht22_pin = 4 # pin for DHT22 Data
 dht22_sensor = adafruit_dht.DHT22(board.D4)
 
 #callback functions
 def exit_program():
     e.set()
-    th.join()
     sys.exit()
 
 def record_data():
@@ -153,9 +153,8 @@ record_data() #Always Recording at the beginning
 while True:
     def count():
     #Initiative Imports & Modules
- 
+
         datetimeFormat='%Y-%m-%d %H:%M:%S'
-        rad_Earth=6378100.0
         computer_time = strftime("%Y-%m-%d %H:%M:%S")
 
         #Gps Variables

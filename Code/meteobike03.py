@@ -54,7 +54,7 @@ vappress_cal_a1 = 1.00000  # enter the calibration coefficient slope for vapour 
 vappress_cal_a0 = 0.00000
 
 window_title = "Meteobike"+raspberryid
-logfile_path = "/home/pi/Desktop/"
+logfile_path = "/home/strebdom/Desktop/"
 logfile = logfile_path+raspberryid+"-"+studentname+"-" + \
     strftime("%Y-%m-%d-%H-%M-%S.csv")  # construct file name
 font_size = 24
