@@ -1,7 +1,7 @@
 #include "writer.h"
 #include <iostream>
 #include <chrono>
-#include <
+#include <ctime>
 using namespace std;
 
 writer::~writer()
