@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
 	float temp, humidity;
 	int error_lev = pi_2_dht_read(DHT22,10,&humidity,&temp);
 	cout << error_lev << endl;
+	writer myfile("/home/strebdom/data");
 }
 
 string getIP()

@@ -10,7 +10,8 @@ class writer
 private:
     /* data */
     string path;
-    ofstream ofile;    
+    ofstream ofile;
+    int diritems;    
 public:
     writer(string path);
     ~writer();
