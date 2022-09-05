@@ -7,7 +7,7 @@ include_directories(include)
 # add the executable
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+file( GLOB SRCS src/*.c src/*.cpp )
 
-
-add_executable(meteobike  src/meteobike.cpp)
-target_sources(meteobike PRIVATE src/writer.cpp)
+add_executable(meteobike  ${SRCS})
+#target_sources(meteobike PRIVATE ${SRCS})
