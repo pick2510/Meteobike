@@ -11,9 +11,10 @@ private:
     /* data */
     string path;
     ofstream ofile;
-    int diritems;    
+    int diritems;
+    void writeHeader();    
 public:
-    writer(string path);
+    writer(const string &path);
     ~writer();
 };
 

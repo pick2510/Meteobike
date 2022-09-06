@@ -10,4 +10,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 file( GLOB SRCS src/*.c src/*.cpp )
 
 add_executable(meteobike  ${SRCS})
+target_link_libraries(meteobike gps pthread)
 #target_sources(meteobike PRIVATE ${SRCS})
