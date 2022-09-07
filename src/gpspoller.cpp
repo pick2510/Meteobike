@@ -77,7 +77,7 @@ void gpspoller::startPoll(atomic<bool> *signal)
         }
         else
         {
-            const std::lock_guard<std::mutex> lock(g_i_mutex);
+            const std::scoped_lock<std::mutex> lock(g_i_mutex);
             data->fix.status == STATUS_NO_FIX ? has_fix == false : has_fix == true;
             altitude = data->fix.altitude;
             longitude = data->fix.longitude;
@@ -94,7 +94,7 @@ void gpspoller::startPoll(atomic<bool> *signal)
 }
 
 gpsdata_r gpspoller::getLastData(){
-    const std::lock_guard<std::mutex> lock(g_i_mutex);
+    const std::scoped_lock<std::mutex> lock(g_i_mutex);
     gpsdata_r retdat;
     retdat.altitude=altitude;
     retdat.latitude=latitude;

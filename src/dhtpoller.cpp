@@ -31,7 +31,7 @@ void dhtpoller::startPoll(std::atomic<bool> *signal){
             if (signal->load()) break;
             continue;        
         } else {
-            const std::lock_guard<std::mutex> lock(l_dht);
+            const std::scoped_lock<std::mutex> lock(l_dht);
             temperature = t_temperature;
             humidity = t_humidity;
         }
@@ -41,7 +41,7 @@ void dhtpoller::startPoll(std::atomic<bool> *signal){
 }
 
 dhtdata_r dhtpoller::getLatestData(){
-    std::lock_guard<std::mutex> lock(l_dht);
+    std::scoped_lock<std::mutex> lock(l_dht);
     dhtdata_r mydata;
     mydata.humdidity = humidity;
     mydata.temperature = temperature;
