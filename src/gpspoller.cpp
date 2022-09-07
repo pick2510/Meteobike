@@ -8,9 +8,11 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <atomic>
+#include <chrono>
 #include <thread>
 
 #include "libgpsmm.h"
+#include "consts.h"
 
 using namespace std;
 
@@ -68,7 +70,7 @@ void gpspoller::startPoll(atomic<bool> *signal)
     {
         if ((data = gps->read()) == nullptr)
         {
-            sleep(1);
+            std::this_thread::sleep_for(std::chrono::seconds(GPS_SLEEP));
             if (signal->load())
                 break;
             continue;
@@ -82,6 +84,7 @@ void gpspoller::startPoll(atomic<bool> *signal)
             latitude = data->fix.latitude;
             gps_time = TimespecToTimeStr(data->fix.time, ISO_8601);
         }
+        std::this_thread::sleep_for(std::chrono::seconds(GPS_SLEEP));
         sleep(1);
         if (signal->load())
         {
