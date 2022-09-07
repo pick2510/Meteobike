@@ -1,12 +1,24 @@
 #pragma once
 
+#include "gpspoller.h"
+#include "dhtpoller.h"
+
+
 class measurement
+
 {
 private:
-    //Time to be implemented
-    double gps;
+    static const double HI_C1,HI_C2,HI_C3,HI_C4,HI_C5,HI_C6,HI_C7,HI_C8,HI_C9;
+    gpsdata_r gps;
+    dhtdata_r dht;
+    double pv;
+    double heatindex;
+    double wbtemp;
+    void calculateVapPres();
+    void calculateHeatIndex();
+    void calculateWetBulbTemp();
 public:
-    measurement(/* args */);
+    measurement(const gpsdata_r gpsdata, const dhtdata_r dhtdata);
     ~measurement();
 };
 

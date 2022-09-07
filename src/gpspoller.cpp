@@ -23,7 +23,7 @@ gpspoller::gpspoller(const string &host, const int port) : port(port), latitude(
     gps = new gpsmm(host.c_str(), port_s.str().c_str());
     if (gps->stream(WATCH_ENABLE | WATCH_JSON) == nullptr)
     {
-        cout << "Error, no GPSD running";
+        cout << "Error, no GPSD running" << endl;
         exit(EXIT_FAILURE);
     }
 }
