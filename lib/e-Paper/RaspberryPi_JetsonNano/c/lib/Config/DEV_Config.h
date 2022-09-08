@@ -48,6 +48,12 @@
 #ifndef _DEV_CONFIG_H_
 #define _DEV_CONFIG_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -105,4 +111,7 @@ UBYTE DEV_Module_Init(void);
 void DEV_Module_Exit(void);
 
 
+#ifdef __cplusplus
+}
+#endif
 #endif

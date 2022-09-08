@@ -86,6 +86,11 @@
 # THE SOFTWARE.
 #
 ******************************************************************************/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #ifndef __EPD_2IN7B_H_
 #define __EPD_2IN7B_H_
 
@@ -100,4 +105,7 @@ void EPD_2IN7B_Clear(void);
 void EPD_2IN7B_Display(UBYTE *Imageblack, UBYTE *Imagered);
 void EPD_2IN7B_Sleep(void);
 
+#endif
+#ifdef __cplusplus
+}
 #endif

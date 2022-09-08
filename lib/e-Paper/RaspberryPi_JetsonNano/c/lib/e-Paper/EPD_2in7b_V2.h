@@ -30,6 +30,11 @@
 ******************************************************************************/
 #ifndef __EPD_2IN7B_V2_H_
 #define __EPD_2IN7B_V2_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 
 #include "DEV_Config.h"
 
@@ -41,5 +46,7 @@ void EPD_2IN7B_V2_Init(void);
 void EPD_2IN7B_V2_Clear(void);
 void EPD_2IN7B_V2_Display(UBYTE *Imageblack, UBYTE *Imagered);
 void EPD_2IN7B_V2_Sleep(void);
-
+#ifdef __cplusplus
+}
+#endif
 #endif

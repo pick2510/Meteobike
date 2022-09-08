@@ -90,8 +90,13 @@
 # THE SOFTWARE.
 #
 ******************************************************************************/
+
 #ifndef __EPD_2IN7_H_
 #define __EPD_2IN7_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 #include "DEV_Config.h"
 
@@ -108,4 +113,7 @@ void EPD_2IN7_Sleep(void);
 
 void EPD_2IN7_Init_4Gray(void);
 void EPD_2IN7_4GrayDisplay(const UBYTE *Image);
+#endif
+#ifdef __cplusplus
+}
 #endif

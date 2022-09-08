@@ -28,8 +28,14 @@
 # THE SOFTWARE.
 #
 ******************************************************************************/
+
+
+
 #ifndef __EPD_2IN7_V2_H_
 #define __EPD_2IN7_V2_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "DEV_Config.h"
 
@@ -45,4 +51,7 @@ void EPD_2IN7_V2_Sleep(void);
 void EPD_2IN7_V2_Display_Base(UBYTE *Image);
 void EPD_2IN7_V2_Display_Partial(UBYTE *Image);
 
+#endif
+#ifdef __cplusplus
+}
 #endif

@@ -3,7 +3,9 @@
         "iostream": "cpp",
         "thread": "cpp",
         "condition_variable": "cpp",
-        "mutex": "cpp"
+        "mutex": "cpp",
+        "epd_test.h": "c",
+        "time.h": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }
