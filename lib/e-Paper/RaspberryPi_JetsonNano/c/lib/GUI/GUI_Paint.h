@@ -69,9 +69,13 @@
 ******************************************************************************/
 #ifndef __GUI_PAINT_H
 #define __GUI_PAINT_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "DEV_Config.h"
 #include "../Fonts/fonts.h"
+
 
 /**
  * Image attributes
@@ -206,7 +210,9 @@ void Paint_DrawTime(UWORD Xstart, UWORD Ystart, PAINT_TIME *pTime, sFONT* Font, 
 
 //pic
 void Paint_DrawBitMap(const unsigned char* image_buffer);
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
