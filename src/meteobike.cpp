@@ -22,22 +22,17 @@ std::atomic<bool> term_signal = false;
 
 int main(int argc, char *argv[])
 {
-	cout << utils::getIP() << endl;
-	cout << utils::getHostname() << endl;
-	DEV_Module_Init();
-	EPD_2IN7_V2_Init();
-	EPD_2IN7_V2_Clear();
-	UWORD Imagesize = ((EPD_2IN7_V2_WIDTH % 8 == 0)? (EPD_2IN7_V2_WIDTH / 8 ): (EPD_2IN7_V2_WIDTH / 8 + 1)) * EPD_2IN7_V2_HEIGHT;
-	std::unique_ptr<UBYTE> BlackImage (new UBYTE[Imagesize]);
-	Paint_NewImage(BlackImage.get(), EPD_2IN7_V2_WIDTH, EPD_2IN7_V2_HEIGHT, 90, WHITE);
-	Paint_Clear(WHITE);
+	string ip{utils::getIP()};
+	string hostname{utils::getHostname()};
+	cout << ip << endl;
+	cout << hostname << endl;
+	auto image = startUp(hostname,ip);
+
 	/*Paint_DrawString_EN(4,4,"Starting", &Font16, WHITE, BLACK);
 	stringstream ss;
 	ss << "This is " << utils::getHostname();
 	Paint_DrawString_EN(4,40,ss.str().c_str(), &Font12, WHITE, BLACK);
 	EPD_2IN7_V2_Display(BlackImage.get());*/
-	GUI_ReadBmp("/home/pi/git/Meteobike/Images/eth.bmp", 0,30);
-	EPD_2IN7_V2_Display(BlackImage.get());
 
 
 
@@ -61,4 +56,32 @@ int main(int argc, char *argv[])
 	gpsdata_r mygqps;
 	measurement mymeasurement(mygqps,mydht);
 
+}
+
+
+std::unique_ptr<UBYTE> startUp(const string &hostname, const string &ip){
+	if(DEV_Module_Init()!=0){
+        std::cerr << "Error, cannot open activate GPIO";
+		return std::unique_ptr<UBYTE> (nullptr);
+	}
+	EPD_2IN7_V2_Init();
+	EPD_2IN7_V2_Clear();
+	std::unique_ptr<UBYTE> Image (new UBYTE[Imagesize]);
+	Paint_NewImage(Image.get(), EPD_2IN7_V2_WIDTH, EPD_2IN7_V2_HEIGHT, 90, WHITE);
+	Paint_Clear(WHITE);
+	GUI_ReadBmp(ETHLOGO.c_str(), 0,30);
+	EPD_2IN7_V2_Display(Image.get());
+	DEV_Delay_ms(2000);
+	Paint_NewImage(Image.get(), EPD_2IN7_V2_WIDTH, EPD_2IN7_V2_HEIGHT, 0, WHITE);
+	Paint_Clear(WHITE);
+    Paint_DrawString_EN(4,4,"Starting", &Roboto14, WHITE, BLACK);
+	stringstream ss;
+	ss << hostname;
+	Paint_DrawString_EN(4,40,ss.str().c_str(), &Roboto12, WHITE, BLACK);
+	ss.str("");
+	ss << ip;
+	Paint_DrawString_EN(4,60,ss.str().c_str(), &Roboto12, WHITE, BLACK);
+	EPD_2IN7_V2_Display(Image.get());
+	return Image;
+	
 }

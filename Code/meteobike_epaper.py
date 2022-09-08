@@ -42,8 +42,8 @@ from PIL import Image,ImageDraw,ImageFont
 import traceback
 
 #User ID & Constants
-raspberryid = "52" # enter your raspberry's number
-studentname = "strebdom" # enter your first name - no spaces and no special characters
+raspberryid = "01" # enter your raspberry's number
+studentname = "envirobike01" # enter your first name - no spaces and no special characters
 temperature_cal_a1 = 1.00000 # enter the calibration coefficient slope for temperature
 temperature_cal_a0 = 0.00000 # enter the calibration coefficient offset for temperature
 vappress_cal_a1 = 1.00000 # enter the calibration coefficient slope for vapour pressure
@@ -53,7 +53,7 @@ rad_Earth=6378100.0
 
 #Creating Data File
 display_interval = 5 # display epaper every X records
-logfile_path = "/home/strebdom/Desktop/"
+logfile_path = "/home/pi/Desktop/"
 logfile = logfile_path+raspberryid+"-"+studentname+"-"+strftime("%Y-%m-%d.csv") # construct file name
 
 e = threading.Event()
@@ -237,7 +237,7 @@ while True:
         epd.init()
 
         #Font Description
-        font_dir='/home/strebdom/git/e-Paper/RaspberryPi_JetsonNano/python/pic'
+        font_dir='/home/pi/git/e-Paper/RaspberryPi_JetsonNano/python/pic'
         font18 = ImageFont.truetype(os.path.join(font_dir, 'Font.ttc'), 18)
         font14 = ImageFont.truetype(os.path.join(font_dir, 'Font.ttc'), 14)
 

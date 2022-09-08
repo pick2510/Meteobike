@@ -5,7 +5,8 @@
         "condition_variable": "cpp",
         "mutex": "cpp",
         "epd_test.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "string": "cpp"
     },
-    "C_Cpp.errorSquiggles": "Enabled"
+    "C_Cpp.errorSquiggles": "Disabled"
 }
