@@ -14,5 +14,8 @@ include_directories(lib/e-Paper/RaspberryPi_JetsonNano/c/lib/Fonts lib/e-Paper/R
 file( GLOB SRCS src/*.c src/*.cpp lib/e-Paper/RaspberryPi_JetsonNano/c/lib/Fonts/* lib/e-Paper/RaspberryPi_JetsonNano/c/lib/GUI/* lib/e-Paper/RaspberryPi_JetsonNano/c/lib/e-Paper/EPD_2in7* lib/e-Paper/RaspberryPi_JetsonNano/c/lib/Config/DEV*)
 
 add_executable(meteobike  ${SRCS})
-target_link_libraries(meteobike gps pthread bcm2835)
+add_custom_command(TARGET meteobike POST_BUILD
+                   COMMAND sudo setcap cap_sys_rawio+ep
+                    ${CMAKE_CURRENT_BINARY_DIR}/meteobike)
+target_link_libraries(meteobike gps pthread bcm2835 cap)
 #target_sources(meteobike PRIVATE ${SRCS})
