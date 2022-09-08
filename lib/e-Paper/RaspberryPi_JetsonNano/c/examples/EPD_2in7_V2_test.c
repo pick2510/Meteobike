@@ -155,7 +155,7 @@ int EPD_2in7_V2_test(void)
         if(num == 0) {
             break;
         }
-		EPD_2IN7_V2_Display_Partial(BlackImage);
+		EPD_2IN7_V2_Display_Pa(BlackImage);
         DEV_Delay_ms(500);//Analog clock 1s
     }
 #endif
