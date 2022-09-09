@@ -10,3 +10,5 @@
 std::unique_ptr<UBYTE> startUp(const std::string &hostname, const std::string &ip);
 void setupGPIO();
 KEYS checkEvent();
+void parseEvent(const KEYS &key, bool &writeRecord);
+
