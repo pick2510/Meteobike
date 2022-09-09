@@ -56,6 +56,7 @@ void writer::createRecord(const results &mymeas)
            << mymeas.pv << ","
            << mymeas.wbtemp << ","
            << mymeas.heatindex;
+    counter++;
 }
 
 
