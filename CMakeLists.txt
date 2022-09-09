@@ -6,7 +6,7 @@ project(meteobike)
 include_directories(include)
 add_compile_definitions(USE_BCM2835_LIB)
 add_compile_definitions(RPI)
-add_compile_definitions(DEBUG)
+#add_compile_definitions(DEBUG)
 # add the executable
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

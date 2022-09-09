@@ -26,11 +26,11 @@ std::tuple<float,float> dhtpoller::getMeasurement(){
 void dhtpoller::startPoll(std::atomic<bool> *signal){
     for (;;){
         if (int retval = pi_2_dht_read(DHT22,pin, &t_humidity, &t_temperature)!=0){
-            std::cerr << "No data" << std::endl;
-            std::this_thread::sleep_for(std::chrono::seconds(DHT_SLEEP));
+            std::cerr << "No data, keeping most recent data" << std::endl;
             if (signal->load()) break;
             continue;        
         } else {
+            if (t_humidity > 100 | t_humidity < 0 | t_temperature < -10 | t_temperature > 60) continue;
             const std::scoped_lock<std::mutex> lock(l_dht);
             temperature = t_temperature;
             humidity = t_humidity;

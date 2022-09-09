@@ -68,6 +68,11 @@ void gpspoller::startPoll(atomic<bool> *signal)
 {
     for (;;)
     {
+
+        if (!gps->waiting(kWaitingTime))
+        {
+            continue;
+        }
         if ((data = gps->read()) == nullptr)
         {
             std::this_thread::sleep_for(std::chrono::seconds(GPS_SLEEP));
@@ -78,14 +83,12 @@ void gpspoller::startPoll(atomic<bool> *signal)
         else
         {
             const std::scoped_lock<std::mutex> lock(g_i_mutex);
-            data->fix.status == STATUS_NO_FIX ? has_fix == false : has_fix == true;
+            data->fix.status == STATUS_NO_FIX ? has_fix = false : has_fix = true;
             altitude = data->fix.altitude;
             longitude = data->fix.longitude;
             latitude = data->fix.latitude;
             gps_time = TimespecToTimeStr(data->fix.time, ISO_8601);
         }
-        std::this_thread::sleep_for(std::chrono::seconds(GPS_SLEEP));
-        sleep(1);
         if (signal->load())
         {
             break;
@@ -93,12 +96,14 @@ void gpspoller::startPoll(atomic<bool> *signal)
     }
 }
 
-gpsdata_r gpspoller::getLastData(){
+gpsdata_r gpspoller::getLastData()
+{
     const std::scoped_lock<std::mutex> lock(g_i_mutex);
     gpsdata_r retdat;
-    retdat.altitude=altitude;
-    retdat.latitude=latitude;
-    retdat.longitude=longitude;
+    retdat.time = gps_time;
+    retdat.altitude = altitude;
+    retdat.latitude = latitude;
+    retdat.longitude = longitude;
     retdat.has_fix = has_fix;
     return retdat;
 }

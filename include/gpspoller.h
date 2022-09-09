@@ -5,6 +5,7 @@
 #include "libgpsmm.h"
 
 struct gpsdata_r {
+    std::string time;
     float longitude,latitude,altitude;
     bool has_fix;
 };

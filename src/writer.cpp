@@ -6,21 +6,21 @@
 #include <sstream>
 using namespace std;
 
-
 writer::~writer()
 {
     ofile.close();
 }
 
-writer::writer(const string &path):
-path(path), diritems(0)
+writer::writer(const string &path, const string &hostname, const string &ip) : path(path), hostname(hostname), ip(ip), diritems(0), record("")
 {
-    if (!filesystem::exists(path)){
+    counter = 0;
+    if (!filesystem::exists(path))
+    {
         exit(EXIT_FAILURE);
         cout << "Path " << path << " does not exist." << endl;
-
     }
-    for (auto const& dir_entry : filesystem::directory_iterator{path}) {
+    for (auto const &dir_entry : filesystem::directory_iterator{path})
+    {
         diritems++;
     }
     cout << diritems << " directory items in " << path << endl;
@@ -36,7 +36,30 @@ path(path), diritems(0)
     writeHeader();
 }
 
-void writer::writeHeader(){
-    ofile << "ID,Record,Raspberry_Time,GPS_Time,Altitude,Latitude,Longitude,Temperature,TemperatureRaw,RelHumidity,RelHumidityRaw,VapourPressure,VapourPressureRaw,BlackBulbTemp,Velocity\n";
+void writer::writeHeader()
+{
+    ofile << "Hostname,count,GPS_Time,Altitude,Latitude,Longitude,Temperature,RelHumidity,VapourPressure,WetBulbTemp,Heatindex\n";
+    ofile.flush();
+}
+
+void writer::createRecord(const results &mymeas)
+{
+    record.str("");
+    record << hostname << ","
+           << counter << ","
+           << mymeas.gps.time << ","
+           << mymeas.gps.altitude << ","
+           << mymeas.gps.latitude << ","
+           << mymeas.gps.longitude << ","
+           << mymeas.dht.temperature << ","
+           << mymeas.dht.humdidity << ","
+           << mymeas.pv << ","
+           << mymeas.wbtemp << ","
+           << mymeas.heatindex;
+}
+
+
+void writer::writeRecord(){
+    ofile << record.str() << "\n";
     ofile.flush();
 }

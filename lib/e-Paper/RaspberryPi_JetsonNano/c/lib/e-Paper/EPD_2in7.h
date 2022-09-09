@@ -90,12 +90,14 @@
 # THE SOFTWARE.
 #
 ******************************************************************************/
-
-#ifndef __EPD_2IN7_H_
-#define __EPD_2IN7_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
+#ifndef __EPD_2IN7_H_
+#define __EPD_2IN7_H_
+
 
 
 #include "DEV_Config.h"
