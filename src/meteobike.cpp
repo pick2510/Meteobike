@@ -32,8 +32,8 @@ int main(int argc, char *argv[])
 		cerr << "Program must be run as root. Exiting" << endl;
 		exit(EXIT_FAILURE);
 	}
-
-	bool writeRecords = true;
+	int internal_counter=0;
+	std::atomic<bool> writeRecords = true;
 	string ip{utils::getIP()};
 	string hostname{utils::getHostname()};
 	cout << ip << endl;
@@ -49,9 +49,10 @@ int main(int argc, char *argv[])
 	gpspoller mygps("localhost");
 	writer output("/home/pi/data/", hostname, ip);
 	threadsafe_queue<results> tq;
-	displayupdater mydsp(tq, hostname, ip, output);
+	displayupdater mydsp(tq, hostname, ip, output, writeRecords);
 	std::thread dht_t(&dhtpoller::startPoll, &mydht, &term_signal);
 	std::thread gps_t(&gpspoller::startPoll, &mygps, &term_signal);
+	std::thread display_t(&displayupdater::startUpdating, &mydsp, &term_signal);
 	for (;;)
 	{
 		auto dhtdata = mydht.getLatestData();
@@ -61,6 +62,7 @@ int main(int argc, char *argv[])
 		cout << "#############################" << endl;
 		cout << "GPS has fix?: " << gpsdata.has_fix << " Time: " << gpsdata.time << " GPS lat: " << gpsdata.latitude << " GPS lon: " << gpsdata.longitude << " Alt: " << gpsdata.altitude << " Speed: " << gpsdata.speed <<  endl;
 		auto results = mymeas.retres();
+		if (internal_counter % UPDATE_EVERY_POINT == 0) tq.push(results);
 		if (writeRecords)
 		{
 			output.createRecord(results);
@@ -74,6 +76,7 @@ int main(int argc, char *argv[])
 		if (term_signal.load())
 			break;
 		std::this_thread::sleep_for(std::chrono::seconds(5));
+		internal_counter++;
 	}
 
 	dht_t.join();
@@ -131,7 +134,7 @@ void setupGPIO()
 	bcm2835_gpio_len(KEYS::KEY4);
 }
 
-void parseEvent(const KEYS &key, bool &writeRecord)
+void parseEvent(const KEYS &key, std::atomic<bool> &writeRecord)
 {
 	switch (key)
 	{

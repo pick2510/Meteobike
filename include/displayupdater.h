@@ -20,8 +20,10 @@ private:
     std::string hostname, ip;
     std::ifstream therm;
     const writer &mywriter;
+    const std::atomic<bool> &is_writing;
 public:
-    displayupdater(threadsafe_queue<results> &inqueue,  const std::string &hostname, const std::string &ip, const writer &mywriter);
+    displayupdater(threadsafe_queue<results> &inqueue,  const std::string &hostname, const std::string &ip, const writer &mywriter, const std::atomic<bool> &is_writing);
+    void startUpdating(std::atomic<bool> *signal);
     ~displayupdater();
 };
 
