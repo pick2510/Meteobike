@@ -10,17 +10,20 @@
 #include <atomic>
 #include <chrono>
 #include <thread>
+#include "sys/time.h"
 
 #include "libgpsmm.h"
 #include "consts.h"
 
 using namespace std;
 
-gpspoller::gpspoller(const string &host, const int port) : port(port), latitude(0), longitude(0), has_fix(false), altitude(0), gps_time("1970-01-01T00:00:00.000Z")
+gpspoller::gpspoller(const string &host, const int port) : port(port), latitude(0), longitude(0), has_fix(false), has_set_systemtime(false), altitude(0), gps_time("1970-01-01T00:00:00.000Z")
 {
     stringstream port_s;
+    t_time.tv_nsec = 0;
+    t_time.tv_sec = 0;
     port_s << port;
-    gps = new gpsmm(host.c_str(), port_s.str().c_str());
+    gps = std::make_unique<gpsmm>(host.c_str(), port_s.str().c_str());
     if (gps->stream(WATCH_ENABLE | WATCH_JSON) == nullptr)
     {
         cout << "Error, no GPSD running" << endl;
@@ -87,6 +90,7 @@ void gpspoller::startPoll(atomic<bool> *signal)
             altitude = data->fix.altitude;
             longitude = data->fix.longitude;
             latitude = data->fix.latitude;
+            t_time = data->fix.time;
             gps_time = TimespecToTimeStr(data->fix.time, ISO_8601);
         }
         if (signal->load())
@@ -98,6 +102,20 @@ void gpspoller::startPoll(atomic<bool> *signal)
 
 gpsdata_r gpspoller::getLastData()
 {
+    if (has_fix && !has_set_systemtime){
+        tzset();
+        timeval tv;
+        TIMESPEC_TO_TIMEVAL(&tv,&t_time);
+        time_t utc = static_cast<time_t> (tv.tv_sec);
+        time_t local = utc - timezone + ( daylight?3600:0 );
+        tv.tv_sec = local;
+        if (settimeofday(&tv, nullptr) != 0){
+            cerr << "Error, cannot set time" << endl;
+        }
+        tm* timeinfo = localtime (&local);
+        cout <<  "The current date/time is: " << asctime(timeinfo);
+        has_set_systemtime = true;
+    }
     const std::scoped_lock<std::mutex> lock(g_i_mutex);
     gpsdata_r retdat;
     retdat.time = gps_time;
@@ -110,5 +128,4 @@ gpsdata_r gpspoller::getLastData()
 
 gpspoller::~gpspoller()
 {
-    delete gps;
 }

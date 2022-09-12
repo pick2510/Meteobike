@@ -5,7 +5,9 @@
 #include <memory>
 #include <string>
 #include <sstream>
+#include <fstream>
 #include "meteobike.h"
+#include "ts_queue.h"
 #include "consts.h"
 #include "writer.h"
 #include "gpspoller.h"
@@ -24,18 +26,33 @@ std::atomic<bool> term_signal = false;
 
 int main(int argc, char *argv[])
 {
+	if (getuid() != 0){
+		cerr << "Program must be run as root. Exiting" << endl;
+		exit(EXIT_FAILURE);
+	}
+	ifstream therm("/sys/class/thermal/thermal_zone0/temp");
+	if (!therm.is_open()){
+		cerr << "Couldn't open /sys/class/thermal/thermal_zone0/temp, exiting!";
+		exit(EXIT_FAILURE);
+	}
 	bool writeRecords = true;
 	string ip{utils::getIP()};
 	string hostname{utils::getHostname()};
 	cout << ip << endl;
 	cout << hostname << endl;
 	setupGPIO();
-	auto image = startUp(hostname, ip);
+	if(auto image = startUp(hostname, ip, therm) == nullptr)
+	{
+		cerr << "Error, couldn't allocate array for for display" << endl;
+		exit(EXIT_FAILURE);
+	}
 	dhtpoller mydht(PIN);
 	gpspoller mygps("localhost");
 	writer output("/home/pi/data/", hostname, ip);
 	std::thread dht_t(&dhtpoller::startPoll, &mydht, &term_signal);
 	std::thread gps_t(&gpspoller::startPoll, &mygps, &term_signal);
+	threadsafe_queue<results> tq();
+	
 	for (;;)
 	{
 		auto dhtdata = mydht.getLatestData();
@@ -44,9 +61,9 @@ int main(int argc, char *argv[])
 		cout << "Humidity: " << dhtdata.humdidity << " Temperature: " << dhtdata.temperature << endl;
 		cout << "#############################" << endl;
 		cout << "GPS has fix?: " << gpsdata.has_fix << " Time: " << gpsdata.time << " GPS lat: " << gpsdata.latitude << " GPS lon: " << gpsdata.longitude << " Alt: " << gpsdata.altitude << endl;
+		auto results = mymeas.retres();
 		if (writeRecords)
 		{
-			auto results = mymeas.retres();
 			output.createRecord(results);
 			output.writeRecord();
 		}
@@ -65,8 +82,12 @@ int main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-std::unique_ptr<UBYTE> startUp(const string &hostname, const string &ip)
+std::unique_ptr<UBYTE> startUp(const string &hostname, const string &ip, ifstream &therm)
 {
+	stringstream therm_ss;
+	therm_ss << therm.rdbuf();
+	auto i_therm = std::stof(therm_ss.str())/1000;
+	therm_ss.seekg(0);
 	if (DEV_Module_Init() != 0)
 	{
 		std::cerr << "Error, cannot open activate GPIO";
@@ -93,6 +114,7 @@ std::unique_ptr<UBYTE> startUp(const string &hostname, const string &ip)
 	Paint_DrawString_EN(4, EPD_2IN7_HEIGHT - (2 * Roboto12.Height), "Key 1: Pause/Resume", &Roboto12, WHITE, BLACK);
 	Paint_DrawString_EN(4, EPD_2IN7_HEIGHT - (1 * Roboto12.Height), "Key 4: Exit", &Roboto12, WHITE, BLACK);
 	EPD_2IN7_Display(Image.get());
+	DEV_Delay_ms(3000);
 	return Image;
 }
 

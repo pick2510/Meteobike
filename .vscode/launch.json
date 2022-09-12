@@ -10,6 +10,7 @@
         "request": "launch",
         "program": "${workspaceFolder}/build/meteobike",
         "args": [],
+        "sudo": true,
         "stopAtEntry": false,
         "cwd": "${fileDirname}",
         "environment": [],

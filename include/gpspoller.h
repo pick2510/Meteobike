@@ -2,6 +2,7 @@
 #include <string>
 #include <atomic>
 #include <mutex>
+#include <memory>
 #include "libgpsmm.h"
 
 struct gpsdata_r {
@@ -16,10 +17,12 @@ class gpspoller
 private:
    std::mutex g_i_mutex; 
    std::string gps_time;
+   timespec_t t_time;
    bool has_fix;
+   bool has_set_systemtime;
    float altitude,latitude,longitude;
    const int port;
-   gpsmm *gps;
+   std::unique_ptr<gpsmm> gps;
    struct gps_data_t* data;
    enum TimeFormat { LOCALTIME, UTC, UNIX, ISO_8601 };
 public:
