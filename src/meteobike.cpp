@@ -7,6 +7,7 @@
 #include <sstream>
 #include <fstream>
 #include "meteobike.h"
+#include "displayupdater.h"
 #include "ts_queue.h"
 #include "consts.h"
 #include "writer.h"
@@ -26,22 +27,20 @@ std::atomic<bool> term_signal = false;
 
 int main(int argc, char *argv[])
 {
-	if (getuid() != 0){
+	if (getuid() != 0)
+	{
 		cerr << "Program must be run as root. Exiting" << endl;
 		exit(EXIT_FAILURE);
 	}
-	ifstream therm("/sys/class/thermal/thermal_zone0/temp");
-	if (!therm.is_open()){
-		cerr << "Couldn't open /sys/class/thermal/thermal_zone0/temp, exiting!";
-		exit(EXIT_FAILURE);
-	}
+
 	bool writeRecords = true;
 	string ip{utils::getIP()};
 	string hostname{utils::getHostname()};
 	cout << ip << endl;
 	cout << hostname << endl;
 	setupGPIO();
-	if(auto image = startUp(hostname, ip, therm) == nullptr)
+	auto image = startUp(hostname, ip);
+	if (image == nullptr)
 	{
 		cerr << "Error, couldn't allocate array for for display" << endl;
 		exit(EXIT_FAILURE);
@@ -49,10 +48,10 @@ int main(int argc, char *argv[])
 	dhtpoller mydht(PIN);
 	gpspoller mygps("localhost");
 	writer output("/home/pi/data/", hostname, ip);
+	threadsafe_queue<results> tq;
+	displayupdater mydsp(tq, hostname, ip, output);
 	std::thread dht_t(&dhtpoller::startPoll, &mydht, &term_signal);
 	std::thread gps_t(&gpspoller::startPoll, &mygps, &term_signal);
-	threadsafe_queue<results> tq();
-	
 	for (;;)
 	{
 		auto dhtdata = mydht.getLatestData();
@@ -60,7 +59,7 @@ int main(int argc, char *argv[])
 		measurement mymeas(gpsdata, dhtdata);
 		cout << "Humidity: " << dhtdata.humdidity << " Temperature: " << dhtdata.temperature << endl;
 		cout << "#############################" << endl;
-		cout << "GPS has fix?: " << gpsdata.has_fix << " Time: " << gpsdata.time << " GPS lat: " << gpsdata.latitude << " GPS lon: " << gpsdata.longitude << " Alt: " << gpsdata.altitude << endl;
+		cout << "GPS has fix?: " << gpsdata.has_fix << " Time: " << gpsdata.time << " GPS lat: " << gpsdata.latitude << " GPS lon: " << gpsdata.longitude << " Alt: " << gpsdata.altitude << " Speed: " << gpsdata.speed <<  endl;
 		auto results = mymeas.retres();
 		if (writeRecords)
 		{
@@ -82,12 +81,9 @@ int main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-std::unique_ptr<UBYTE> startUp(const string &hostname, const string &ip, ifstream &therm)
+std::unique_ptr<UBYTE> startUp(const string &hostname, const string &ip)
 {
-	stringstream therm_ss;
-	therm_ss << therm.rdbuf();
-	auto i_therm = std::stof(therm_ss.str())/1000;
-	therm_ss.seekg(0);
+
 	if (DEV_Module_Init() != 0)
 	{
 		std::cerr << "Error, cannot open activate GPIO";

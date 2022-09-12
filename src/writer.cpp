@@ -13,8 +13,7 @@ writer::~writer()
 
 writer::writer(const string &path, const string &hostname, const string &ip) : path(path), hostname(hostname), ip(ip), diritems(0), record("")
 {
-    counter = 0;
-    if (!filesystem::exists(path))
+     if (!filesystem::exists(path))
     {
         exit(EXIT_FAILURE);
         cout << "Path " << path << " does not exist." << endl;

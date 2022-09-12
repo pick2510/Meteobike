@@ -91,6 +91,7 @@ void gpspoller::startPoll(atomic<bool> *signal)
             longitude = data->fix.longitude;
             latitude = data->fix.latitude;
             t_time = data->fix.time;
+            speed = data->fix.speed;
             gps_time = TimespecToTimeStr(data->fix.time, ISO_8601);
         }
         if (signal->load())
@@ -117,12 +118,7 @@ gpsdata_r gpspoller::getLastData()
         has_set_systemtime = true;
     }
     const std::scoped_lock<std::mutex> lock(g_i_mutex);
-    gpsdata_r retdat;
-    retdat.time = gps_time;
-    retdat.altitude = altitude;
-    retdat.latitude = latitude;
-    retdat.longitude = longitude;
-    retdat.has_fix = has_fix;
+    gpsdata_r retdat {.time = gps_time, .longitude=longitude, .latitude=latitude, .altitude = altitude, .speed=speed, .has_fix = has_fix};
     return retdat;
 }
 

@@ -86,6 +86,7 @@ extern sFONT Font12;
 extern sFONT Font8;
 extern sFONT Roboto14;
 extern sFONT Roboto12;
+extern sFONT Roboto13;
 
 extern cFONT Font12CN;
 extern cFONT Font24CN;

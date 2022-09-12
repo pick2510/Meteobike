@@ -1,3 +1,6 @@
+#ifndef TS_Q
+#define TS_Q
+
 #include <queue>
 #include <mutex>
 #include <condition_variable>
@@ -66,3 +69,5 @@ public:
     }
 
 };
+
+#endif

@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream> 
 #include <sstream>
+#include <atomic>
 #include "measurement.h"
 
 
@@ -14,12 +15,13 @@ private:
     std::string path, hostname, ip;
     std::stringstream record;
     std::ofstream ofile;
-    int diritems, counter;
+    int diritems;
     void writeHeader();    
 public:
     writer(const std::string &path, const std::string &hostname, const std::string &ip);
     void createRecord(const results &myresult);
     void writeRecord();
+    std::atomic<int> counter=0;
     ~writer();
 };
 

@@ -15,6 +15,7 @@
         "cwd": "${fileDirname}",
         "environment": [],
         "externalConsole": false,
+        "miDebuggerPath": "/home/pi/debug.sh",
         "MIMode": "gdb",
         "setupCommands": [
             {

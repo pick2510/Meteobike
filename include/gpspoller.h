@@ -7,7 +7,7 @@
 
 struct gpsdata_r {
     std::string time;
-    float longitude,latitude,altitude;
+    float longitude,latitude,altitude,speed;
     bool has_fix;
 };
 
@@ -20,7 +20,7 @@ private:
    timespec_t t_time;
    bool has_fix;
    bool has_set_systemtime;
-   float altitude,latitude,longitude;
+   float altitude,latitude,longitude,speed;
    const int port;
    std::unique_ptr<gpsmm> gps;
    struct gps_data_t* data;

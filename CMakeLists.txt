@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 3.10)
 project(meteobike)
 
 include_directories(include)
+add_subdirectory(lib/fmt)
+
 add_compile_definitions(USE_BCM2835_LIB)
 add_compile_definitions(RPI)
 #add_compile_definitions(DEBUG)
@@ -17,5 +19,5 @@ add_executable(meteobike  ${SRCS})
 add_custom_command(TARGET meteobike POST_BUILD
                    COMMAND sudo setcap cap_sys_rawio+ep
                     ${CMAKE_CURRENT_BINARY_DIR}/meteobike)
-target_link_libraries(meteobike gps pthread bcm2835 cap)
+target_link_libraries(meteobike gps pthread bcm2835 cap fmt::fmt)
 #target_sources(meteobike PRIVATE ${SRCS})
