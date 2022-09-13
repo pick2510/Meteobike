@@ -39,12 +39,7 @@ int main(int argc, char *argv[])
 	cout << ip << endl;
 	cout << hostname << endl;
 	setupGPIO();
-	auto image = startUp(hostname, ip);
-	if (image == nullptr)
-	{
-		cerr << "Error, couldn't allocate array for for display" << endl;
-		exit(EXIT_FAILURE);
-	}
+	startUp(hostname, ip);
 	dhtpoller mydht(PIN);
 	gpspoller mygps("localhost");
 	writer output("/home/pi/data/", hostname, ip);
@@ -52,7 +47,7 @@ int main(int argc, char *argv[])
 	displayupdater mydsp(tq, hostname, ip, output, writeRecords);
 	std::thread dht_t(&dhtpoller::startPoll, &mydht, &term_signal);
 	std::thread gps_t(&gpspoller::startPoll, &mygps, &term_signal);
-	std::thread display_t(&displayupdater::startUpdating, &mydsp, &term_signal);
+	std::thread display_t(&displayupdater::startUpdating, &mydsp);
 	for (;;)
 	{
 		auto dhtdata = mydht.getLatestData();
@@ -73,28 +68,31 @@ int main(int argc, char *argv[])
 		{
 			parseEvent(event, writeRecords);
 		}
-		if (term_signal.load())
+		if (term_signal.load()){
+			results.is_ending = true;
+			tq.push(results);
+			display_t.join();
 			break;
+		}
 		std::this_thread::sleep_for(std::chrono::seconds(5));
 		internal_counter++;
 	}
-
 	dht_t.join();
 	gps_t.join();
 	return EXIT_SUCCESS;
 }
 
-std::unique_ptr<UBYTE> startUp(const string &hostname, const string &ip)
+void startUp(const string &hostname, const string &ip)
 {
 
 	if (DEV_Module_Init() != 0)
 	{
 		std::cerr << "Error, cannot open activate GPIO";
-		return std::unique_ptr<UBYTE>(nullptr);
+		exit(EXIT_FAILURE);	
 	}
 	EPD_2IN7_Init();
 	EPD_2IN7_Clear();
-	std::unique_ptr<UBYTE> Image(new UBYTE[Imagesize]);
+	auto Image = std::make_unique<UBYTE[]>(Imagesize);
 	Paint_NewImage(Image.get(), EPD_2IN7_WIDTH, EPD_2IN7_HEIGHT, 90, WHITE);
 	Paint_Clear(WHITE);
 	GUI_ReadBmp(ETHLOGO.c_str(), 0, 30);
@@ -114,7 +112,6 @@ std::unique_ptr<UBYTE> startUp(const string &hostname, const string &ip)
 	Paint_DrawString_EN(4, EPD_2IN7_HEIGHT - (1 * Roboto12.Height), "Key 4: Exit", &Roboto12, WHITE, BLACK);
 	EPD_2IN7_Display(Image.get());
 	DEV_Delay_ms(3000);
-	return Image;
 }
 
 void setupGPIO()

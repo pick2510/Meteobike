@@ -9,6 +9,7 @@ struct gpsdata_r {
     std::string time;
     float longitude,latitude,altitude,speed;
     bool has_fix;
+    timespec_t t_time;
 };
 
 

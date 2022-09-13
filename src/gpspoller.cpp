@@ -118,7 +118,7 @@ gpsdata_r gpspoller::getLastData()
         has_set_systemtime = true;
     }
     const std::scoped_lock<std::mutex> lock(g_i_mutex);
-    gpsdata_r retdat {.time = gps_time, .longitude=longitude, .latitude=latitude, .altitude = altitude, .speed=speed, .has_fix = has_fix};
+    gpsdata_r retdat {.time = gps_time, .longitude=longitude, .latitude=latitude, .altitude = altitude, .speed=speed, .has_fix = has_fix, .t_time = t_time};
     return retdat;
 }
 

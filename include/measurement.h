@@ -8,6 +8,7 @@ struct results {
     gpsdata_r gps;
     dhtdata_r dht;
     double pv,heatindex,wbtemp;
+    bool is_ending;
 };
 
 class measurement

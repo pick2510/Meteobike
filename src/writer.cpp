@@ -37,7 +37,7 @@ writer::writer(const string &path, const string &hostname, const string &ip) : p
 
 void writer::writeHeader()
 {
-    ofile << "Hostname,count,GPS_Time,Altitude,Latitude,Longitude,Temperature,RelHumidity,VapourPressure,WetBulbTemp,Heatindex\n";
+    ofile << "Hostname,count,GPS_Time,Altitude,Latitude,Longitude,Speed,Temperature,RelHumidity,VapourPressure,WetBulbTemp,Heatindex\n";
     ofile.flush();
 }
 
@@ -50,16 +50,18 @@ void writer::createRecord(const results &mymeas)
            << mymeas.gps.altitude << ","
            << mymeas.gps.latitude << ","
            << mymeas.gps.longitude << ","
+           << mymeas.gps.speed << ","
            << mymeas.dht.temperature << ","
            << mymeas.dht.humdidity << ","
            << mymeas.pv << ","
            << mymeas.wbtemp << ","
            << mymeas.heatindex;
-    counter++;
-}
+ }
 
 
 void writer::writeRecord(){
     ofile << record.str() << "\n";
     ofile.flush();
+    counter++;
+
 }

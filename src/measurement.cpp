@@ -53,6 +53,6 @@ void measurement::calculateWetBulbTemp()
 
 results measurement::retres()
 {
-    results res = {.gps = gps, .dht = dht, .pv = pv, .heatindex = heatindex, .wbtemp = wbtemp};
+    results res = {.gps = gps, .dht = dht, .pv = pv, .heatindex = heatindex, .wbtemp = wbtemp, .is_ending= false};
     return res;
 }
