@@ -9,7 +9,13 @@
 #include "GUI_BMPfile.h"
 
 
+struct args{
+    int log_every_second;
+};
 
+
+
+args getOptions(int &argc, char** argv);
 void startUp(const std::string &hostname, const std::string &ip);
 void setupGPIO();
 KEYS checkEvent();

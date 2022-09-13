@@ -19,7 +19,7 @@ private:
     void writeHeader();    
 public:
     writer(const std::string &path, const std::string &hostname, const std::string &ip);
-    void createRecord(const results &myresult);
+    void createRecord(const results_r &myresult);
     void writeRecord();
     std::atomic<int> counter=0;
     ~writer();

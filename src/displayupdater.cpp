@@ -8,7 +8,7 @@ using namespace std;
 #define bigfont Roboto13
 #define smallfont Font12
 
-displayupdater::displayupdater(threadsafe_queue<results> &inqueue, const std::string &hostname, const std::string &ip, const writer &mywriter, const std::atomic<bool> &is_writing) : queue(inqueue), ip(ip), hostname(hostname), mywriter(mywriter), is_writing(is_writing)
+displayupdater::displayupdater(threadsafe_queue<results_r> &inqueue, const std::string &hostname, const std::string &ip, const writer &mywriter, const std::atomic<bool> &is_writing) : queue(inqueue), ip(ip), hostname(hostname), mywriter(mywriter), is_writing(is_writing)
 {
     stringstream therm_ss;
     ifstream therm("/sys/class/thermal/thermal_zone0/temp");
@@ -44,7 +44,7 @@ void displayupdater::startUpdating()
 {
     for (;;)
     {
-        results res;
+        results_r res;
         queue.wait_and_pop(res);
         if (res.is_ending)
         {

@@ -4,7 +4,7 @@
 #include "dhtpoller.h"
 
 
-struct results {
+struct results_r {
     gpsdata_r gps;
     dhtdata_r dht;
     double pv,heatindex,wbtemp;
@@ -26,7 +26,7 @@ private:
     void calculateWetBulbTemp();
 public:
     measurement(const gpsdata_r gpsdata, const dhtdata_r dhtdata);
-    results retres();
+    results_r retres();
     ~measurement();
 };
 

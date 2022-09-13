@@ -7,6 +7,7 @@
 #include <sstream>
 #include <fstream>
 #include "meteobike.h"
+#include "unistd.h"
 #include "displayupdater.h"
 #include "ts_queue.h"
 #include "consts.h"
@@ -27,12 +28,14 @@ std::atomic<bool> term_signal = false;
 
 int main(int argc, char *argv[])
 {
+	auto myargs = getOptions(argc, argv);
+	cout << "Log every " << myargs.log_every_second << " second" << endl;
 	if (getuid() != 0)
 	{
 		cerr << "Program must be run as root. Exiting" << endl;
 		exit(EXIT_FAILURE);
 	}
-	int internal_counter=0;
+	int internal_counter = 0;
 	std::atomic<bool> writeRecords = true;
 	string ip{utils::getIP()};
 	string hostname{utils::getHostname()};
@@ -43,7 +46,7 @@ int main(int argc, char *argv[])
 	dhtpoller mydht(PIN);
 	gpspoller mygps("localhost");
 	writer output("/home/pi/data/", hostname, ip);
-	threadsafe_queue<results> tq;
+	threadsafe_queue<results_r> tq;
 	displayupdater mydsp(tq, hostname, ip, output, writeRecords);
 	std::thread dht_t(&dhtpoller::startPoll, &mydht, &term_signal);
 	std::thread gps_t(&gpspoller::startPoll, &mygps, &term_signal);
@@ -55,9 +58,10 @@ int main(int argc, char *argv[])
 		measurement mymeas(gpsdata, dhtdata);
 		cout << "Humidity: " << dhtdata.humdidity << " Temperature: " << dhtdata.temperature << endl;
 		cout << "#############################" << endl;
-		cout << "GPS has fix?: " << gpsdata.has_fix << " Time: " << gpsdata.time << " GPS lat: " << gpsdata.latitude << " GPS lon: " << gpsdata.longitude << " Alt: " << gpsdata.altitude << " Speed: " << gpsdata.speed <<  endl;
+		cout << "GPS has fix?: " << gpsdata.has_fix << " Time: " << gpsdata.time << " GPS lat: " << gpsdata.latitude << " GPS lon: " << gpsdata.longitude << " Alt: " << gpsdata.altitude << " Speed: " << gpsdata.speed << endl;
 		auto results = mymeas.retres();
-		if (internal_counter % UPDATE_EVERY_POINT == 0) tq.push(results);
+		if (internal_counter % UPDATE_EVERY_POINT == 0)
+			tq.push(results);
 		if (writeRecords)
 		{
 			output.createRecord(results);
@@ -68,13 +72,14 @@ int main(int argc, char *argv[])
 		{
 			parseEvent(event, writeRecords);
 		}
-		if (term_signal.load()){
+		if (term_signal.load())
+		{
 			results.is_ending = true;
 			tq.push(results);
 			display_t.join();
 			break;
 		}
-		std::this_thread::sleep_for(std::chrono::seconds(5));
+		std::this_thread::sleep_for(std::chrono::seconds(myargs.log_every_second));
 		internal_counter++;
 	}
 	dht_t.join();
@@ -88,7 +93,7 @@ void startUp(const string &hostname, const string &ip)
 	if (DEV_Module_Init() != 0)
 	{
 		std::cerr << "Error, cannot open activate GPIO";
-		exit(EXIT_FAILURE);	
+		exit(EXIT_FAILURE);
 	}
 	EPD_2IN7_Init();
 	EPD_2IN7_Clear();
@@ -188,4 +193,27 @@ KEYS checkEvent()
 		return KEYS::KEY4;
 	}
 	return KEYS::NOKEY;
+}
+
+args getOptions(int &argc, char **argv)
+{
+	args myargs;
+	int opt;
+	if (argc < 2) {
+		cout << "Error please define seconds to wait for log entry: -d x" << endl;
+		exit(EXIT_FAILURE);
+	}
+	while ((opt = getopt(argc, argv, "d:")) != -1)
+	{
+		switch (opt)
+		{
+			case 'd':
+				myargs.log_every_second = std::atoi(optarg);
+				break;
+			default:
+				cout << "Please define seconds to wait for log entry: -d x" << endl;
+				exit(EXIT_FAILURE);
+		}
+	}
+	return myargs;
 }

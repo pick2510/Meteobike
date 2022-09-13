@@ -41,7 +41,7 @@ void writer::writeHeader()
     ofile.flush();
 }
 
-void writer::createRecord(const results &mymeas)
+void writer::createRecord(const results_r &mymeas)
 {
     record.str("");
     record << hostname << ","

@@ -51,8 +51,8 @@ void measurement::calculateWetBulbTemp()
     wbtemp = dht.temperature * atan(0.151977 * pow((dht.humdidity + 8.313659), 0.5)) + atan(dht.temperature + dht.humdidity) - atan(dht.humdidity - 1.676331) + 0.00391838 * pow(dht.humdidity, 1.5) * atan(0.023101 * dht.humdidity) - 4.686035;
 }
 
-results measurement::retres()
+results_r measurement::retres()
 {
-    results res = {.gps = gps, .dht = dht, .pv = pv, .heatindex = heatindex, .wbtemp = wbtemp, .is_ending= false};
+    results_r res = {.gps = gps, .dht = dht, .pv = pv, .heatindex = heatindex, .wbtemp = wbtemp, .is_ending= false};
     return res;
 }
