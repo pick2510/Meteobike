@@ -9,7 +9,7 @@
         "type": "cppdbg",
         "request": "launch",
         "program": "${workspaceFolder}/build/meteobike",
-        "args": [],
+        "args": ["-d 5"],
         "sudo": true,
         "stopAtEntry": false,
         "cwd": "${fileDirname}",

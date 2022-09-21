@@ -72,7 +72,7 @@ void displayupdater::startUpdating()
         Paint_DrawString_EN(4, 0 + 2 * (bigfont.Height), fmt::format("pv: {:.3}[kpa]", res.pv / 1000).c_str(), &bigfont, WHITE, BLACK);
         Paint_DrawString_EN(4, 0 + 3 * (bigfont.Height), fmt::format("Speed: {:.2}[m/s]", res.gps.speed).c_str(), &bigfont, WHITE, BLACK);
         Paint_DrawString_EN(4, 0 + 4 * (bigfont.Height), fmt::format("Altitude:{}[m]", res.gps.altitude).c_str(), &bigfont, WHITE, BLACK);
-        Paint_DrawString_EN(4, 0 + 5 * (bigfont.Height), "Date/time (UTC):", &bigfont, WHITE, BLACK);
+        Paint_DrawString_EN(4, 0 + 5 * (bigfont.Height), "Date/time:", &bigfont, WHITE, BLACK);
         Paint_DrawString_EN(4, 0 + 6 * (bigfont.Height), fmt::format("{:%d-%m-%y %H:%M:%S}", timespecTotime(res.gps.t_time)).c_str(), &bigfont, WHITE, BLACK);
         Paint_DrawString_EN(4, 0 + 7 * (bigfont.Height), fmt::format("Lat: {:.5}", res.gps.latitude).c_str(), &bigfont, WHITE, BLACK);
         Paint_DrawString_EN(4, 0 + 8 * (bigfont.Height), fmt::format("Lon: {:.5}", res.gps.longitude).c_str(), &bigfont, WHITE, BLACK);

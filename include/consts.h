@@ -21,6 +21,6 @@ constexpr int MAXTIMINGS=100;
 constexpr auto kWaitingTime{1000000}; 
 constexpr UWORD Imagesize = ((EPD_2IN7_WIDTH % 8 == 0)? (EPD_2IN7_WIDTH / 8 ): (EPD_2IN7_WIDTH / 8 + 1)) * EPD_2IN7_HEIGHT;
 const std::string PATH = "/home/strebdom/data/";
-const std::string ETHLOGO = "/home/pi/git/Meteobike/Images/eth.bmp";
+const std::string ETHLOGO = "/home/pi/git/Meteobike/Images/eth_new.bmp";
 
 #endif

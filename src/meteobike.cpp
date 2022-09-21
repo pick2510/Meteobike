@@ -98,11 +98,11 @@ void startUp(const string &hostname, const string &ip)
 	EPD_2IN7_Init();
 	EPD_2IN7_Clear();
 	auto Image = std::make_unique<UBYTE[]>(Imagesize);
-	Paint_NewImage(Image.get(), EPD_2IN7_WIDTH, EPD_2IN7_HEIGHT, 90, WHITE);
+	Paint_NewImage(Image.get(), EPD_2IN7_WIDTH, EPD_2IN7_HEIGHT, 0, WHITE);
 	Paint_Clear(WHITE);
-	GUI_ReadBmp(ETHLOGO.c_str(), 0, 30);
+	GUI_ReadBmp(ETHLOGO.c_str(), 0, 0);
 	EPD_2IN7_Display(Image.get());
-	DEV_Delay_ms(2000);
+	DEV_Delay_ms(3000);
 	// EPD_2IN7_Clear();
 	Paint_NewImage(Image.get(), EPD_2IN7_WIDTH, EPD_2IN7_HEIGHT, 0, WHITE);
 	Paint_Clear(WHITE);
