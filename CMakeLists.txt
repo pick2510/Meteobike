@@ -20,4 +20,6 @@ add_custom_command(TARGET meteobike POST_BUILD
                    COMMAND sudo setcap cap_sys_rawio+ep
                     ${CMAKE_CURRENT_BINARY_DIR}/meteobike)
 target_link_libraries(meteobike gps pthread bcm2835 cap fmt::fmt)
+install(TARGETS meteobike DESTINATION bin)
+
 #target_sources(meteobike PRIVATE ${SRCS})

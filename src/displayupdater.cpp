@@ -2,6 +2,7 @@
 #include <fmt/format.h>
 #include <fmt/chrono.h>
 #include <chrono>
+#include "utils.h"
 
 using namespace std;
 
@@ -10,6 +11,10 @@ using namespace std;
 
 displayupdater::displayupdater(threadsafe_queue<results_r> &inqueue, const std::string &hostname, const std::string &ip, const writer &mywriter, const std::atomic<bool> &is_writing) : queue(inqueue), ip(ip), hostname(hostname), mywriter(mywriter), is_writing(is_writing)
 {
+    if (ip == "None")
+    {
+            updateIp();
+    }   
     stringstream therm_ss;
     ifstream therm("/sys/class/thermal/thermal_zone0/temp");
     image = std::make_unique<UBYTE[]>(Imagesize);
@@ -50,6 +55,10 @@ void displayupdater::startUpdating()
         {
             break;
         }
+        if (ip == "None" && ip_counter < 5)
+        {
+            updateIp();
+        }   
         stringstream therm_ss;
         therm.open("/sys/class/thermal/thermal_zone0/temp");
         therm_ss << therm.rdbuf();
@@ -85,6 +94,12 @@ std::chrono::system_clock::time_point displayupdater::timespecTotime(timespec_t 
 
     auto dur = std::chrono::duration_cast<std::chrono::nanoseconds>(duration);
     return std::chrono::system_clock::time_point(dur);
+}
+
+void displayupdater::updateIp()
+{
+    ip = utils::getIP();
+    ip_counter++;
 }
 
 displayupdater::~displayupdater()
